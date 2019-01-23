@@ -79,6 +79,12 @@ def create_ad_hoc_field(cls, db_type):
     if db_type.startswith('FixedString'):
         db_type = 'String'
 
+    if db_type == 'LowCardinality(String)':
+        db_type = 'String'
+
+    if db_type.startswith('DateTime'):
+        db_type = 'DateTime'
+
     if db_type.startswith('Nullable'):
         inner_field = cls.create_ad_hoc_field(db_type[9 : -1])
         return orm_fields.NullableField(inner_field)
@@ -112,12 +118,13 @@ class Connection(Database):
     """
         These objects are small stateless factories for cursors, which do all the real work.
     """
-    def __init__(self, db_name, db_url='http://localhost:8123/', username=None, password=None):
-        super(Connection, self).__init__(db_name, db_url, username, password)
+    def __init__(self, db_name, db_url='http://localhost:8123/', username=None, password=None, readonly=False):
+        super(Connection, self).__init__(db_name, db_url, username, password, readonly)
         self.db_name = db_name
         self.db_url = db_url
         self.username = username
         self.password = password
+        self.readonly = readonly
 
     def close(self):
         pass
@@ -192,7 +199,7 @@ class Cursor(object):
 
     def execute(self, operation, parameters=None, is_response=True):
         """Prepare and execute a database operation (query or command). """
-        if parameters is None:
+        if parameters is None or not parameters:
             sql = operation
         else:
             sql = operation % _escaper.escape_args(parameters)
@@ -346,4 +353,3 @@ class Cursor(object):
         self._data = data
         self._columns = cols
         self._state = self._STATE_FINISHED
-
