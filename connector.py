@@ -70,7 +70,7 @@ def create_ad_hoc_field(cls, db_type):
 
     # UUID    
     if db_type.startswith('UUID'):
-    db_type = 'String'
+        db_type = 'String'
     # Enums
     if db_type.startswith('Enum'):
         db_type = 'String' # enum.Eum is not comparable
