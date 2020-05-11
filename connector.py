@@ -68,6 +68,9 @@ _escaper = ParamEscaper()
 def create_ad_hoc_field(cls, db_type):
     import infi.clickhouse_orm.fields as orm_fields
 
+    # UUID    
+    if db_type.startswith('UUID'):
+    db_type = 'String'
     # Enums
     if db_type.startswith('Enum'):
         db_type = 'String' # enum.Eum is not comparable
